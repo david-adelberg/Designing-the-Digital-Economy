@@ -1,5 +1,7 @@
 import requests
+import json
 from random import randint
+
 
 def readInputLocations(fileName):
 	array = []
@@ -61,7 +63,8 @@ def sendRequest(locationArray): # google
 
 	response = requests.request("GET", url, params=querystring)
 	# print(response.text)
-	return response
+	json_response = json.loads(response.text)
+	return json_response
 
 def getDurationMatrix(response): # duration matrix in seconds
 	numLocations = len(response["rows"])
@@ -75,11 +78,7 @@ def getDurationMatrix(response): # duration matrix in seconds
 	for i in range(numLocations): # i is origin, j is destination
 		for j in range(numLocations):
 			durMatrix[i][j] = response["rows"][i]["elements"][j]["duration"]["value"]
-
-
-
-
-
+	return durMatrix
 
 def getDistanceMatrix(response): # creates a distance matrix in meters
 	numLocations = len(response["rows"])
@@ -93,6 +92,7 @@ def getDistanceMatrix(response): # creates a distance matrix in meters
 	for i in range(numLocations): # i is origin, j is destination
 		for j in range(numLocations):
 			distMatrix[i][j] = response["rows"][i]["elements"][j]["distance"]["value"]
+	return distMatrix
 
 
 
