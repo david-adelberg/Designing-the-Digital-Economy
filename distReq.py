@@ -66,33 +66,25 @@ def sendRequest(locationArray): # google
 	json_response = json.loads(response.text)
 	return json_response
 
-def getDurationMatrix(response): # duration matrix in seconds
+def getMatrix(response, types):
 	numLocations = len(response["rows"])
-	durMatrix= []
+	matrix= []
 	for i in range(numLocations):
 		newRow = []
 		for j in range(numLocations):
 			newRow.append(0)
-		durMatrix.append(newRow)
+		matrix.append(newRow)
 
 	for i in range(numLocations): # i is origin, j is destination
 		for j in range(numLocations):
-			durMatrix[i][j] = response["rows"][i]["elements"][j]["duration"]["value"]
-	return durMatrix
+			matrix[i][j] = response["rows"][i]["elements"][j][types]["value"]
+	return matrix
+
+def getDurationMatrix(response): # duration matrix in seconds
+	return getMatrix(response,"duration")
 
 def getDistanceMatrix(response): # creates a distance matrix in meters
-	numLocations = len(response["rows"])
-	distMatrix= []
-	for i in range(numLocations):
-		newRow = []
-		for j in range(numLocations):
-			newRow.append(0)
-		distMatrix.append(newRow)
-
-	for i in range(numLocations): # i is origin, j is destination
-		for j in range(numLocations):
-			distMatrix[i][j] = response["rows"][i]["elements"][j]["distance"]["value"]
-	return distMatrix
+	return getMatrix(response,"distance")
 
 
 
