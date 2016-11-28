@@ -17,6 +17,8 @@ def readInputLocations(fileName):
 def randomLocations(locationArray, numLocations):
 	arrayIndexes = []
 	randomLocationArray = []
+   chicagoOHare = [41.9742,-87.9073]
+   randomLocationArray.append(chicagoOHare); # origin point
 	for i in range(numLocations):
 		x = randint(0,len(locationArray)-1)
 		while x in arrayIndexes:
@@ -24,6 +26,7 @@ def randomLocations(locationArray, numLocations):
 		arrayIndexes.append(x)
 	for index in arrayIndexes:
 		randomLocationArray.append(locationArray[index])
+
 	return randomLocationArray
 
 
@@ -86,21 +89,29 @@ def getDurationMatrix(response): # duration matrix in seconds
 def getDistanceMatrix(response): # creates a distance matrix in meters
 	return getMatrix(response,"distance")
 
-
+def getIndex(location, addresses):
+   return addresses.index(location)
 
 # USAGE EXAMPLE
 
 # import distReq # uncomment this when using in another file
 
-numLocations = 5
+numRiders = 5
 locationFile = "locations.txt" # stores all the lat/longs on different lines
 
-processedArray = randomLocations(readInputLocations(locationFile), numLocations)
+processedArray = randomLocations(readInputLocations(locationFile), numRiders)
 response = sendRequest(processedArray)
 
 addresses = response["origin_addresses"] # list of length numLocations of the addresses
 durMatrix = getDurationMatrix(response)
 distMatrix = getDistanceMatrix(response)
+
+# There is a 1:1 mapping between locations and their array index, so to make it easier, we can search by address
+# example: durMatrix[getIndex("2627 S Drake Ave, Chicago, IL 60623, USA", addresses), getIndex("E Lake Service St, Chicago, IL 60601, USA", addresses)]
+
+
+
+
 
 '''  EXAMPLE RESPONSE BELOW
 {
