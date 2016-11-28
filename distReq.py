@@ -4,89 +4,89 @@ from random import randint
 
 
 def readInputLocations(fileName):
-	array = []
-	with open(fileName, "r") as inputs:
-	    for line in inputs:
-	    	location=line.split(",");
-	    	for i in range (len(location)):
-	    		location[i] = location[i].strip()
-	    		location[i] = float(location[i])
-	        array.append(location)
-	return array
+   array = []
+   with open(fileName, "r") as inputs:
+       for line in inputs:
+         location=line.split(",");
+         for i in range (len(location)):
+            location[i] = location[i].strip()
+            location[i] = float(location[i])
+           array.append(location)
+   return array
 
 def randomLocations(locationArray, numLocations):
-	arrayIndexes = []
-	randomLocationArray = []
+   arrayIndexes = []
+   randomLocationArray = []
    chicagoOHare = [41.9742,-87.9073]
    randomLocationArray.append(chicagoOHare) # origin point
-	for i in range(numLocations):
-		x = randint(0,len(locationArray)-1)
-		while x in arrayIndexes:
-			x = randint(0,len(locationArray)-1)
-		arrayIndexes.append(x)
-	for index in arrayIndexes:
-		randomLocationArray.append(locationArray[index])
-	return randomLocationArray
+   for i in range(numLocations):
+      x = randint(0,len(locationArray)-1)
+      while x in arrayIndexes:
+         x = randint(0,len(locationArray)-1)
+      arrayIndexes.append(x)
+   for index in arrayIndexes:
+      randomLocationArray.append(locationArray[index])
+   return randomLocationArray
 
 
 # def sendRequest(): # mapbox, for reference purposes only
-# 	url = "https://api.mapbox.com/distances/v1/mapbox/driving"
-# 	querystring = {"access_token":"pk.eyJ1IjoiYWxhbmxpdSIsImEiOiJjaWsxaTFnNm0zOXFqdmdsejUxaXVvbnA2In0.ZtiuHVLRb2IOKT9qY8VQmA"}
+#  url = "https://api.mapbox.com/distances/v1/mapbox/driving"
+#  querystring = {"access_token":"pk.eyJ1IjoiYWxhbmxpdSIsImEiOiJjaWsxaTFnNm0zOXFqdmdsejUxaXVvbnA2In0.ZtiuHVLRb2IOKT9qY8VQmA"}
 
-# 	coordinates = readInputLocations(locationFile)
-# 	payload = "{ \"coordinates\": "+ str(coordinates)+ " }"
+#  coordinates = readInputLocations(locationFile)
+#  payload = "{ \"coordinates\": "+ str(coordinates)+ " }"
 
-# 	headers = {
-# 	    'content-type': "application/json",
-# 	    'cache-control': "no-cache",
-# 	    'postman-token': "93701ef9-42d2-1e63-0524-4219a8f57fa9"
-# 	    }
-# 	response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+#  headers = {
+#      'content-type': "application/json",
+#      'cache-control': "no-cache",
+#      'postman-token': "93701ef9-42d2-1e63-0524-4219a8f57fa9"
+#      }
+#  response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
 
-# 	print(response.text)
+#  print(response.text)
 
 
-def sendRequest(locationArray): # google
-	apiKey = "AIzaSyD0NJrqsnsTz6unHq4d2FqF2kbhDxYih0Y"
-	url = "https://maps.googleapis.com/maps/api/distancematrix/json"
-
-	locations = ""
-
-	for location in locationArray:
-		for coord in location:
-			locations+= str(coord)
-			locations+= ","
-		locations = locations[:-1] #strip comma
-		locations += "|"
-
-	locations = locations[:-1] # strip the last |
-
-	querystring = {"origins":locations, "destinations": locations, "mode": "driving", "language":"en-US", "key" : apiKey}
-
-	response = requests.request("GET", url, params=querystring)
-	# print(response.text)
-	json_response = json.loads(response.text)
-	return json_response
+# addresses is an array of strings, with each string being a street address
+# locationArray is an array of lat/long coordinates. Ex. [[64,52],[63,51]]
+def sendRequest(locationArray, addresses):
+   apiKey = "AIzaSyD0NJrqsnsTz6unHq4d2FqF2kbhDxYih0Y"
+   url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+   locations = ""
+   if (locationArray != []):
+      for location in locationArray:
+         for coord in location:
+            locations+= str(coord)
+            locations+= ","
+         locations = locations[:-1] #strip comma
+         locations += "|"
+      if (addresses != []):
+         locations = locations[:-1] # strip the last |
+   locations+= "|".join(addresses)
+   querystring = {"origins":locations, "destinations": locations, "mode": "driving", "language":"en-US", "key" : apiKey}
+   response = requests.request("GET", url, params=querystring)
+   # print(response.text)
+   json_response = json.loads(response.text)
+   return json_response
 
 def getMatrix(response, types):
-	numLocations = len(response["rows"])
-	matrix= []
-	for i in range(numLocations):
-		newRow = []
-		for j in range(numLocations):
-			newRow.append(0)
-		matrix.append(newRow)
+   numLocations = len(response["rows"])
+   matrix= []
+   for i in range(numLocations):
+      newRow = []
+      for j in range(numLocations):
+         newRow.append(0)
+      matrix.append(newRow)
 
-	for i in range(numLocations): # i is origin, j is destination
-		for j in range(numLocations):
-			matrix[i][j] = response["rows"][i]["elements"][j][types]["value"]
-	return matrix
+   for i in range(numLocations): # i is origin, j is destination
+      for j in range(numLocations):
+         matrix[i][j] = response["rows"][i]["elements"][j][types]["value"]
+   return matrix
 
 def getDurationMatrix(response): # duration matrix in seconds
-	return getMatrix(response,"duration")
+   return getMatrix(response,"duration")
 
 def getDistanceMatrix(response): # creates a distance matrix in meters
-	return getMatrix(response,"distance")
+   return getMatrix(response,"distance")
 
 def getIndex(location, addresses):
    return addresses.index(location)
