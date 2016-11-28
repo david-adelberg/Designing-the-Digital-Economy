@@ -18,7 +18,7 @@ def randomLocations(locationArray, numLocations):
 	arrayIndexes = []
 	randomLocationArray = []
    chicagoOHare = [41.9742,-87.9073]
-   randomLocationArray.append(chicagoOHare); # origin point
+   randomLocationArray.append(chicagoOHare) # origin point
 	for i in range(numLocations):
 		x = randint(0,len(locationArray)-1)
 		while x in arrayIndexes:
@@ -26,7 +26,6 @@ def randomLocations(locationArray, numLocations):
 		arrayIndexes.append(x)
 	for index in arrayIndexes:
 		randomLocationArray.append(locationArray[index])
-
 	return randomLocationArray
 
 
