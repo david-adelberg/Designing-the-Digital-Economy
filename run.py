@@ -1,7 +1,7 @@
 import os, time
 from flask import Flask, Response, render_template, jsonify
 from geojson import Point, Feature, FeatureCollection
-from distReq import randomLocations, readInputLocations, getDurationMatrix, getDistanceMatrix# uncomment this when using in another file
+from .distReq import randomLocations, readInputLocations, getDurationMatrix, getDistanceMatrix# uncomment this when using in another file
 
 
 
