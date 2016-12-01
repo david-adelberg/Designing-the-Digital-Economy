@@ -1,0 +1,75 @@
+<!doctype>
+
+<html>
+  <head>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
+    <style>
+        body { margin:0; padding:0; }
+        #map { width: 600px; height: 400px; margin-top: 50px; }
+    </style>
+  </head>
+  <body>
+    <div>
+      <!-- <input type="text" name="username" id="username"/> -->
+      <input type="button" class="origin" value="View Airport"/>
+      <input type="button" class="destination" value="View Destinations"/>
+    </div>
+    <div id="log">
+    </div>
+    <div id="map">
+    </div>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script>
+
+    $('.origin').click(function() {
+      var source = new EventSource('/process');
+      source.onopen = function(){
+        console.log('connection is opened.' + source.readyState);
+      };
+
+      source.onmessage = function(event) {
+        var message = $('#log').html();
+        $('#log').html(message + event.data);
+      };
+
+      source.onerror = function(e) {
+        source.close();
+        $.get('/origin', function(response) {
+          var myLayer = L.mapbox.featureLayer().addTo(map);
+          myLayer.setGeoJSON(response.result);
+        });
+        // alert('Origin: Chicago O\' Hare');
+      };
+    });
+
+   $('.destination').click(function() {
+      var source = new EventSource('/process2');
+      source.onopen = function(){
+        console.log('connection is opened.' + source.readyState);
+      };
+
+      source.onmessage = function(event) {
+        var message = $('#log').html();
+        $('#log').html(message + event.data);
+      };
+
+      source.onerror = function(e) {
+        source.close();
+        $.get('/dest', function(response) {
+          var myLayer = L.mapbox.featureLayer().addTo(map);
+          myLayer.setGeoJSON(response.result);
+        });
+        // alert('Origin: Chicago O\' Hare');
+      };
+    });
+
+    L.mapbox.accessToken = '{{ACCESS_KEY}}';
+    var map = L.mapbox.map('map', 'mapbox.streets', {
+      scrollWheelZoom: false
+    }).setView([41.90, -87.775], 10);
+
+</script>
+  </body>
+</html>
