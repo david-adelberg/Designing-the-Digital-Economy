@@ -13,8 +13,8 @@
   <body>
     <div>
       <!-- <input type="text" name="username" id="username"/> -->
-      <input type="button" class="origin" value="View Airport"/>
-      <input type="button" class="destination" value="View Destinations"/>
+      <input type="button" id ='origin' class="origin" value="View Airport"/>
+      <input type="button" id ='dest' class="destination" value="View Destinations"/>
     </div>
     <div id="log">
     </div>
@@ -42,6 +42,7 @@
         });
         // alert('Origin: Chicago O\' Hare');
       };
+      document.getElementById('origin').disabled = 'true'
     });
 
    $('.destination').click(function() {
@@ -63,11 +64,14 @@
         });
         // alert('Origin: Chicago O\' Hare');
       };
+
+      document.getElementById('dest').disabled = 'true';
+
     });
 
     L.mapbox.accessToken = '{{ACCESS_KEY}}';
     var map = L.mapbox.map('map', 'mapbox.streets', {
-      scrollWheelZoom: false
+      scrollWheelZoom: true
     }).setView([41.90, -87.775], 10);
 
 </script>

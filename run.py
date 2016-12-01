@@ -31,7 +31,7 @@ def processDestinations():
     # addresses = response["origin_addresses"] # list of length numLocations of the addresses
     for i in range(1, len(processedArray)):
         point = Point((processedArray[i][1],processedArray[i][0]))
-        feature =  Feature(geometry=point ,properties= {'marker-color': '#228B22','marker-size': 'medium','marker-symbol': str(i)})
+        feature =  Feature(geometry=point ,properties= {'marker-color': '#228B22','marker-size': 'medium','marker-symbol': chr(96+i)})
         destinationFeatureArray.append(feature)
     # durMatrix = getDurationMatrix(response)
     # distMatrix = getDistanceMatrix(response)
