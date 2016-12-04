@@ -8,6 +8,10 @@ from mapbox import Directions
 
 app = Flask(__name__)
 app.debug = True
+app.secret_key = 'correctHorseBatteryStaple'
+app.config['SESSION_TYPE'] = 'filesystem'
+
+
 destinationFeatureArray = []
 response = [];
 distMatrix = []
@@ -126,8 +130,4 @@ def long_running_process4():
 
 
 if __name__ == "__main__":
-    app.secret_key = 'correctHorseBatteryStaple'
-    app.config['SESSION_TYPE'] = 'filesystem'
-
-    app.debug = True
     app.run()
