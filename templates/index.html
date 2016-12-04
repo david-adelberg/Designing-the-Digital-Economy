@@ -15,6 +15,8 @@
       <!-- <input type="text" name="username" id="username"/> -->
       <input type="button" id ='origin' class="origin" value="View Airport"/>
       <input type="button" id ='dest' class="destination" value="View Destinations"/>
+      <input type="button" id ='soc' class="social" value="Display Socially Optimal Path"/>
+      <input type="button" id ='opt' class="optimal" value="Display Utility Maximizing Path"/>
     </div>
     <div id="log">
     </div>
@@ -66,12 +68,61 @@
       };
 
       document.getElementById('dest').disabled = 'true';
+      document.getElementById('opt').removeAttribute("hidden");
+      document.getElementById('soc').removeAttribute("hidden");
 
     });
 
+    $('.social').click(function() {
+      var source = new EventSource('/process3');
+      source.onopen = function(){
+        console.log('connection is opened.' + source.readyState);
+      };
+
+      source.onmessage = function(event) {
+        var message = $('#log').html();
+        $('#log').html(message + event.data);
+      };
+
+      source.onerror = function(e) {
+        source.close();
+        $.get('/social', function(response) {
+          var myLayer = L.mapbox.featureLayer().addTo(map);
+          myLayer.setGeoJSON(response.result);
+        });
+        // alert('Origin: Chicago O\' Hare');
+      };
+      document.getElementById('soc').disabled = 'true'
+    });
+
+    $('.optimal').click(function() {
+      var source = new EventSource('/process4');
+      source.onopen = function(){
+        console.log('connection is opened.' + source.readyState);
+      };
+
+      source.onmessage = function(event) {
+        var message = $('#log').html();
+        $('#log').html(message + event.data);
+      };
+
+      source.onerror = function(e) {
+        source.close();
+        $.get('/opt', function(response) {
+          var myLayer = L.mapbox.featureLayer().addTo(map);
+          myLayer.setGeoJSON(response.result);
+        });
+        // alert('Origin: Chicago O\' Hare');
+      };
+      document.getElementById('opt').disabled = 'true'
+    });
+
+    document.getElementById('opt').hidden = 'true'
+    document.getElementById('soc').hidden = 'true'
+
     L.mapbox.accessToken = '{{ACCESS_KEY}}';
     var map = L.mapbox.map('map', 'mapbox.streets', {
-      scrollWheelZoom: true
+      scrollWheelZoom: false
     }).setView([41.90, -87.775], 10);
 
 </script>

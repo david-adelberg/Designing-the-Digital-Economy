@@ -2,3 +2,5 @@ flask
 gunicorn
 geojson
 requests
+numpy
+mapbox
