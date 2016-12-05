@@ -10,13 +10,13 @@ def pathList(destinations):
     perms = it.permutations(destinations[1:len(destinations)])
     origin = destinations[0]
     lst = list(perms)
-    np.random.shuffle(lst)
+    # np.random.shuffle(lst)
 
     #To reduce computation time in the case of a large number of riders,
     #We simply look at some large subset of paths instead of the entire space
     #Obviously this isn't great in the worst case, but it is good in the average case
-    if len(lst) > 120:
-        lst = lst[:120]
+    # if len(lst) > 120:
+    #     lst = lst[:120]
     permlist = []
     for x in lst:
         newpath = []

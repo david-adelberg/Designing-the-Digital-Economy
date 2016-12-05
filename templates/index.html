@@ -12,7 +12,11 @@
   </head>
   <body>
     <div>
-      <!-- <input type="text" name="username" id="username"/> -->
+      <form action="./riders" method="POST">
+          Number of riders: <input type="text" name="numRiders" id="username"/>
+          <input type="submit" name="my-form" value="Send">
+      </form>
+
       <input type="button" id ='origin' class="origin" value="View Airport"/>
       <input type="button" id ='dest' class="destination" value="View Destinations"/>
       <input type="button" id ='soc' class="social" value="Display Socially Optimal Path"/>

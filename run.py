@@ -1,9 +1,10 @@
 import os, time
-from flask import Flask, Response, render_template, jsonify, session
+from flask import Flask, Response, render_template, jsonify, session, request, redirect, url_for
 from geojson import Point, Feature, FeatureCollection
 from distReq import randomLocations, readInputLocations, getDurationMatrix, getDistanceMatrix, sendRequest# uncomment this when using in another file
-from findPath import gen_time_values, harmMatrices
+from findPath import  harmMatrices, random_time_values
 from mapbox import Directions
+import numpy as np
 
 
 app = Flask(__name__)
@@ -20,8 +21,18 @@ addreses = []
 paths = []
 costs = []
 output = []
-
 originFeature = []
+
+uberIncomesRaw = [25.0, 50.0, 85.0, 150.0, 300.0, 600.0]
+uberIncomesDistRaw = [8.0,23.0,18.0,27.0,9.0, 2.0]
+# Note that this doesn't sum to 100, because about 20% of uber drivers
+# declined to share their income with the surveyors
+
+uberIncomes = uberIncomesRaw/(np.ones(len(uberIncomesRaw)))
+# Note that these numbers are not normalized in any way
+# In production, these numbers should be in units of $/minute
+
+uberIncomesDist = uberIncomesDistRaw/np.sum(uberIncomesDistRaw)
 
 
 ACCESS_KEY = os.environ.get('MAPBOX_ACCESSKEY')
@@ -40,7 +51,8 @@ def processOrigin():
 
 @app.route('/dest')
 def processDestinations():
-    numRiders = 5
+    numRiders = session.get('numRiders', 5)
+    print numRiders
     locationFile = "locations.txt" # stores all the lat/longs on different lines
     processedArray = randomLocations(readInputLocations(locationFile), numRiders)
     destinationFeatureArray = []
@@ -54,7 +66,8 @@ def processDestinations():
     session['addresses'] = addresses = response["origin_addresses"] # list of length numLocations of the addresses
     session['durMatrix'] = durMatrix = getDurationMatrix(response)
     session['distMatrix'] = distMatrix = getDistanceMatrix(response)
-    timeValues = gen_time_values()
+
+    timeValues = random_time_values(uberIncomes, numRiders, uberIncomesDist)
     destinations = [(dest[0], dest[1], i) for i, dest in enumerate(processedArray)]
     output, paths, costs = harmMatrices(timeValues, destinations, durMatrix)
     session['paths']=paths
@@ -126,6 +139,12 @@ def long_running_process4():
       def generate4():
         yield 'data: Optimal Path \n\n'
       return Response(generate4(), mimetype='text/event-stream')
+
+@app.route('/riders', methods=['POST'])
+def my_form_post():
+    if int(request.form['numRiders']) < 10 and int(request.form['numRiders']) > 0:
+        session["numRiders"] = int(request.form['numRiders'])
+    return redirect(url_for('index'))
 
 
 
