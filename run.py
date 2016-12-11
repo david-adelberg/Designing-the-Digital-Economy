@@ -208,7 +208,7 @@ def long_running_process4():
 
 @app.route('/riders', methods=['POST'])
 def my_form_post():
-    if int(request.form['numRiders']) < 10 and int(request.form['numRiders']) > 0:
+    if request.form['numRiders'].isdigit() && int(request.form['numRiders']) < 10 and int(request.form['numRiders']) > 0:
         session["numRiders"] = int(request.form['numRiders'])
     return redirect(url_for('index'))
 
