@@ -1,0 +1,55 @@
+<!doctype>
+
+<html>
+  <head>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
+    <style>
+        body { margin:0; padding:0; }
+        #map { width: 600px; height: 400px; margin-top: 50px; }
+    </style>
+  </head>
+
+<body>
+<div role="tabpanel">
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#basics" aria-controls="basics" role="tab" data-toggle="tab">Rider Payments</a></li>
+    <li role="presentation"><a href="#wdev" aria-controls="wdev" role="tab" data-toggle="tab">Time Savings</a></li>
+    <li role="presentation"><a href="#dan" aria-controls="dan" role="tab" data-toggle="tab">FILLER</a></li>
+
+  </ul>
+
+  <!-- Tab panes -->
+<div class="tab-content">
+
+  <div role="tabpanel" class="tab-pane fade in active" id="basics">
+  <br>
+  <b>Time Minimizing Path</b>
+  {{soc_table}}
+
+  Uber cost : ${{soc_uber_cost}}, Time: {{soc_ride_time}} minutes
+  <!-- Uber profit : {{soc_uber_profit}} -->
+
+<br> <br>
+  <b>Utility Optimizing Path</b>
+  {{opt_table}}
+
+  Uber cost : ${{opt_uber_cost}} Time: {{opt_ride_time}} minutes
+  <!-- Uber profit : {{opt_uber_profit}} -->
+  </div>
+
+  <div role="tabpanel" class="tab-pane fade" id="wdev">web dev</div>
+
+
+  <div role="tabpanel" class="tab-pane fade" id="dan">Data analysis!#Q$@!#</div>
+
+</div>
+
+</div>
+  </body>
+</html>

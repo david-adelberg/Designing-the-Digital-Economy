@@ -133,12 +133,12 @@ def harmMatrices(timeValues, destinations, distMatrix):
         #remaining elements of path list will be optimal paths leaving out one rider
         subOptCosts.append(indivCostMat(timeValues, deficientOptPath,distMatrix))
     output = []
-    output.append(subOptCosts[0])
+    output.append(subOptCosts[0].tolist())
     for i in range(len(timeValues)):
         if i > 0:
             payments = subOptCosts[0]-subOptCosts[i]
             payments[i] = 0
-            output.append(payments)
+            output.append(payments.tolist())
 
     return output, subOptPaths, subOptCosts
 
@@ -156,12 +156,12 @@ uberIncomesDist = uberIncomesDistRaw/np.sum(uberIncomesDistRaw)
 
 default_num_locations=5
 
-carCost = 15
+carCost = 50
 #Estimated car value of time to be equivalent to 15K/year earner
 def random_time_values(incomes, n, p, carCost=carCost):
     timeValues = np.random.choice(incomes, n, p=p)
     timeValues = np.append(carCost, timeValues)
-    timeValues *= (1000.0 / (262.0 * 8.0))
+    timeValues *= (1/2.0)
     return(timeValues)
 
 

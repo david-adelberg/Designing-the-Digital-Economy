@@ -2,12 +2,16 @@ import os, time
 from flask import Flask, Response, render_template, jsonify, session, request, redirect, url_for
 from geojson import Point, Feature, FeatureCollection
 from distReq import randomLocations, readInputLocations, getDurationMatrix, getDistanceMatrix, sendRequest# uncomment this when using in another file
-from findPath import  harmMatrices, random_time_values
+from findPath import  harmMatrices, random_time_values, indivCostMat
 from mapbox import Directions
 import numpy as np
+from flask_bootstrap import Bootstrap
 
+# import things
+from flask_table import Table, Col
 
 app = Flask(__name__)
+Bootstrap(app)
 app.debug = True
 app.secret_key = 'correctHorseBatteryStaple'
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -41,6 +45,63 @@ service = Directions(ACCESS_KEY)
 def index():
     return render_template('index.html', ACCESS_KEY=ACCESS_KEY)
 
+
+
+# Declare your table
+class RiderTable(Table):
+    name = Col('Rider Name')
+    valuation = Col('Time Valuation ($/hr)')
+    duration = Col('Trip Duration (minutes)')
+    payment = Col('Payment ($)')
+
+# # Get some objects
+# class Item(object):
+#     def __init__(self, name, description):
+#         self.name = name
+#         self.description = description
+
+@app.route('/stats')
+def harm():
+    payments = session.get('payments', None)
+    timeValuation = session.get('timeValuation', None)
+    durMatrix = session.get('durMatrix', None)
+    num_riders = len(payments[0])-1 # 1 cost per rider
+
+    # 1 table that has just the riders names, time valuation, time in car, payment
+
+    # 1 table that has riders names and payments to other riders
+    paths = session.get('paths', None)
+    socialPath = paths[0]
+    optPath = paths[1]
+
+    onesList = [1] * (num_riders+1)
+    soc_durations = indivCostMat(onesList, socialPath, durMatrix)
+
+    soc_riders = []
+    soc_cost = 0
+    soc_uber_cost = str(round(timeValuation[0] * soc_durations[0] /3600, 2)) # $
+    soc_ride_time = str(round(soc_durations[0]/60, 2)) #mins
+    for i in range(num_riders):
+        soc_cost += payments[0][i]/3600
+
+    for i in range(num_riders):
+        rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(soc_durations[i+1]/60,2)), payment=str(round(soc_cost/num_riders,2))) #3600 to convert to per hour
+        soc_riders.append(rider)
+
+    opt_durations = indivCostMat(onesList, optPath, durMatrix)
+    opt_riders = []
+    opt_uber_cost = str(round(timeValuation[0] * opt_durations[0] /3600, 2))
+    opt_ride_time = str(round(opt_durations[0]/60,2)) #mins
+    for i in range(num_riders):
+        rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(opt_durations[i+1]/60,2)), payment=str(round(payments[0][i]/3600,2))) #3600 to convert to per hour
+        opt_riders.append(rider)
+
+    # Populate the table
+    rider_table = RiderTable(opt_riders)
+    rider2_table = RiderTable(soc_riders)
+
+    return render_template('harm.html', opt_table=rider_table, soc_table=rider2_table, soc_uber_cost = soc_uber_cost, opt_uber_cost=opt_uber_cost, soc_ride_time=soc_ride_time, opt_ride_time=opt_ride_time)
+
 @app.route('/origin')
 def processOrigin():
     point = Point((-87.9073, 41.9742))
@@ -68,9 +129,13 @@ def processDestinations():
     session['distMatrix'] = distMatrix = getDistanceMatrix(response)
 
     timeValues = random_time_values(uberIncomes, numRiders, uberIncomesDist)
+    session['timeValuation'] = timeValues.tolist()
+
     destinations = [(dest[0], dest[1], i) for i, dest in enumerate(processedArray)]
     output, paths, costs = harmMatrices(timeValues, destinations, durMatrix)
     session['paths']=paths
+    print output
+    session['payments']= output
     return jsonify(result=feature_collection)
 
 @app.route('/social')
@@ -92,6 +157,7 @@ def socialRoute():
     responseJson['features'][0]['properties']['stroke']=  '#000080' # lime
     responseJson['features'][0]['properties']['stroke-opacity']=  '0.7'
     responseJson['features'][0]['properties']['stroke-width']=  '6'
+
     return jsonify(result=responseJson)
 
 

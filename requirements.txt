@@ -4,3 +4,5 @@ geojson
 requests
 numpy
 mapbox
+flask_table
+flask-bootstrap
