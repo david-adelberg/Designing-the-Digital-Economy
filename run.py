@@ -54,11 +54,9 @@ class RiderTable(Table):
     duration = Col('Trip Duration (minutes)')
     payment = Col('Payment ($)')
 
-# # Get some objects
-# class Item(object):
-#     def __init__(self, name, description):
-#         self.name = name
-#         self.description = description
+class RiderComp(Table):
+    name = Col('Rider Name')
+    comp = Col('Compensation for other Rider')
 
 @app.route('/stats')
 def harm():
@@ -208,7 +206,7 @@ def long_running_process4():
 
 @app.route('/riders', methods=['POST'])
 def my_form_post():
-    if request.form['numRiders'].isdigit() && int(request.form['numRiders']) < 10 and int(request.form['numRiders']) > 0:
+    if request.form['numRiders'].isdigit() and int(request.form['numRiders']) < 10 and int(request.form['numRiders']) > 0:
         session["numRiders"] = int(request.form['numRiders'])
     return redirect(url_for('index'))
 
