@@ -91,7 +91,7 @@ def harm():
     opt_uber_cost = str(round(timeValuation[0] * opt_durations[0] /3600, 2))
     opt_ride_time = str(round(opt_durations[0]/60,2)) #mins
     for i in range(num_riders):
-        rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(opt_durations[i+1]/60,2)), payment=str(round(payments[0][i]/3600,2))) #3600 to convert to per hour
+        rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(opt_durations[i+1]/60,2)), payment=str(round(np.sum(payments[i+1])/3600,2))) #3600 to convert to per hour
         opt_riders.append(rider)
 
     # Populate the table
