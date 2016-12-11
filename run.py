@@ -80,7 +80,7 @@ def harm():
     soc_uber_cost = str(round(timeValuation[0] * soc_durations[0] /3600, 2)) # $
     soc_ride_time = str(round(soc_durations[0]/60, 2)) #mins
     for i in range(num_riders):
-        soc_cost += payments[0][i]/3600
+        soc_cost += np.sum(payments[i+1])/3600
 
     for i in range(num_riders):
         rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(soc_durations[i+1]/60,2)), payment=str(round(soc_cost/num_riders,2))) #3600 to convert to per hour
