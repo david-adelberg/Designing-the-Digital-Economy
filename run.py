@@ -63,7 +63,13 @@ def harm():
     payments = session.get('payments', None)
     timeValuation = session.get('timeValuation', None)
     durMatrix = session.get('durMatrix', None)
+
     num_riders = len(payments[0])-1 # 1 cost per rider
+
+    uberx= []
+    # approximating cost of uberx
+    for i in range(num_riders+1):
+        uberx.append(durMatrix[0][i] * 40.0/60.0/60.0) # ubers cost 40/hr = 40/60/60 per second
 
     # 1 table that has just the riders names, time valuation, time in car, payment
 
@@ -83,7 +89,7 @@ def harm():
         soc_cost += np.sum(payments[i+1])/3600
 
     for i in range(num_riders):
-        rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(soc_durations[i+1]/60,2)), payment=str(round(soc_cost/num_riders,2))) #3600 to convert to per hour
+        rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(soc_durations[i+1]/60,2)), payment=str(round(uberx[i+1]/num_riders,2))) #3600 to convert to per hour
         soc_riders.append(rider)
 
     opt_durations = indivCostMat(onesList, optPath, durMatrix)
