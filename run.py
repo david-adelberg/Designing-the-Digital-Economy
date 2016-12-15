@@ -120,7 +120,7 @@ def harm():
     surplus_table = []
     uberDriver = {'name': 'Driver', 'utility': str(round((100.0*payments[0][0]/shortestPathCost[0]),2))} # we want improvement over shortest, so calculate in costs 1/shortest/optimal = optimal/shortest
     surplus_table.append(uberDriver)
-    for i in range(1, num_riders):
+    for i in range(1, num_riders+1):
         rider = dict(name=("Rider " + chr(64+i)), utility=str(round((100.0*payments[0][i]/shortestPathCost[i]),2)))
         surplus_table.append(rider)
 
