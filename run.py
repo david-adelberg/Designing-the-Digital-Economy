@@ -60,7 +60,8 @@ class SurplusTable(Table):
     classes = ['table']
     name = Col('Agent') #rider, uber
     utility = Col('Improvement under Optimal Path (%)')
-    cost = Col('Monetary (including Time) Cost of Ride($)')
+    cost = Col('Monetary (including Time) Cost of Optimal Ride($)')
+    socCost = Col('Monetary (including Time) Cost of Shortest Ride($)')
 
 @app.route('/stats')
 def harm():
@@ -122,7 +123,8 @@ def harm():
     surplus_table.append(uberDriver)
     for i in range(1, num_riders+1):
         timeCost = float(opt_durations[i]) /3600.0 * timeValuation[i] + round(np.sum(payments[i])/3600,2)
-        rider = dict(name=("Rider " + chr(64+i)), cost=str(round(timeCost,2)), utility=str(round((100.0*(1-payments[0][i]/shortestPathCost[i])),2)))
+        shortTimeCost = float(soc_durations[i]) / 3600.0 * timeValuation[i] + round(3* uberx[i+1]/(num_riders+2),2)
+        rider = dict(name=("Rider " + chr(64+i)), cost=str(round(timeCost,2)), socCost=str(round(shortTimeCost,2)), utility=str(round((100.0*(1-timeCost/shortTimeCost)),2)))
         surplus_table.append(rider)
 
     # Populate the table
