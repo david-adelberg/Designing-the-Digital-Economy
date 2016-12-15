@@ -59,8 +59,8 @@ class RiderTable(Table):
 class SurplusTable(Table):
     classes = ['table']
     name = Col('Agent') #rider, uber
-    utility = Col('Cost under Optimal Path (%)')
-    # value = Col('Monetary difference')
+    utility = Col('Improvement under Optimal Path (%)')
+    cost = Col('Monetary (including Time) Cost of Ride($)')
 
 @app.route('/stats')
 def harm():
@@ -118,10 +118,11 @@ def harm():
     # calculate surplus
     shortestPathCost = indivCostMat(timeValuation, socialPath, durMatrix)
     surplus_table = []
-    uberDriver = {'name': 'Driver', 'utility': str(round((100.0*payments[0][0]/shortestPathCost[0]),2))} # we want improvement over shortest, so calculate in costs 1/shortest/optimal = optimal/shortest
+    uberDriver = {'name': 'Driver', 'cost':str(round(float(opt_uber_cost),2)), 'utility': str(round((100.0*(1-payments[0][0]/shortestPathCost[0])),2))} # we want improvement over shortest, so calculate in costs 1/shortest/optimal = optimal/shortest
     surplus_table.append(uberDriver)
     for i in range(1, num_riders+1):
-        rider = dict(name=("Rider " + chr(64+i)), utility=str(round((100.0*payments[0][i]/shortestPathCost[i]),2)))
+        timeCost = float(opt_durations[i]) /60.0 * timeValuation[i] + round(np.sum(payments[i])/3600,2)
+        rider = dict(name=("Rider " + chr(64+i)), cost=str(round(timeCost,2)), utility=str(round((100.0*(1-payments[0][i]/shortestPathCost[i])),2)))
         surplus_table.append(rider)
 
     # Populate the table
