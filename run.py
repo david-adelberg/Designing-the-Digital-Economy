@@ -59,7 +59,7 @@ class RiderTable(Table):
 class SurplusTable(Table):
     classes = ['table']
     name = Col('Agent') #rider, uber
-    utility = Col('Surplus utility')
+    utility = Col('Cost')
     # value = Col('Monetary difference')
 
 @app.route('/stats')
@@ -95,6 +95,12 @@ def harm():
     for i in range(num_riders):
         rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(soc_durations[i+1]/60,2)), payment=str(round(3* uberx[i+1]/(num_riders+2),2))) #converges to 0
         soc_riders.append(rider)
+    socUberGross = 0
+    for rider in soc_riders:
+        socUberGross += float(rider['payment'])
+
+    socUberProfit = socUberGross - float(soc_uber_cost);
+
 
     # calculate costs for second route
     opt_durations = indivCostMat(onesList, optPath, durMatrix)
@@ -106,11 +112,12 @@ def harm():
         opt_riders.append(rider)
 
     # calculate surplus
+    shortestPathCost = indivCostMat(timeValuation, socialPath, durMatrix)
     surplus_table = []
-    uberDriver = {'name': 'Driver', 'utility': str(round(payments[0][0],2))}
+    uberDriver = {'name': 'Driver', 'utility': str(round((payments[0][0]- shortestPathCost[0]),2))}
     surplus_table.append(uberDriver)
     for i in range(1, num_riders):
-        rider = dict(name=("Rider " + chr(64+i)), utility=str(round(payments[0][i],2)))
+        rider = dict(name=("Rider " + chr(64+i)), utility=str(round((payments[0][i] - shortestPathCost[i]),2)))
         surplus_table.append(rider)
 
     # Populate the table
@@ -118,7 +125,9 @@ def harm():
     rider2_table = RiderTable(soc_riders)
     surplusTable = SurplusTable(surplus_table)
 
-    return render_template('harm.html', opt_table=rider_table, soc_table=rider2_table, soc_uber_cost = soc_uber_cost, opt_uber_cost=opt_uber_cost, soc_ride_time=soc_ride_time, opt_ride_time=opt_ride_time, surplus_table=surplusTable)
+    return render_template('harm.html', opt_table=rider_table, soc_table=rider2_table, soc_uber_cost = soc_uber_cost, \
+        opt_uber_cost=opt_uber_cost, soc_ride_time=soc_ride_time, opt_ride_time=opt_ride_time, surplus_table=surplusTable, \
+        soc_uber_profit=socUberProfit, soc_uber_gross=socUberGross)
 
 @app.route('/origin')
 def processOrigin():
