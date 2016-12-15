@@ -49,14 +49,18 @@ def index():
 
 # Declare your table
 class RiderTable(Table):
+    classes = ['table']
     name = Col('Rider Name')
     valuation = Col('Time Valuation ($/hr)')
     duration = Col('Trip Duration (minutes)')
     payment = Col('Payment ($)')
 
-class RiderComp(Table):
-    name = Col('Rider Name')
-    comp = Col('Compensation for other Rider')
+# Declare your table
+class SurplusTable(Table):
+    classes = ['table']
+    name = Col('Agent') #rider, uber
+    utility = Col('Surplus utility')
+    # value = Col('Monetary difference')
 
 @app.route('/stats')
 def harm():
@@ -78,20 +82,21 @@ def harm():
     socialPath = paths[0]
     optPath = paths[1]
 
-    onesList = [1] * (num_riders+1)
-    soc_durations = indivCostMat(onesList, socialPath, durMatrix)
+    onesList = [1] * (num_riders+1) # just an array with 1s to serve as weights
 
+    # calculate costs for the first route
+    soc_durations = indivCostMat(onesList, socialPath, durMatrix)
     soc_riders = []
     soc_cost = 0
     soc_uber_cost = str(round(timeValuation[0] * soc_durations[0] /3600, 2)) # $
     soc_ride_time = str(round(soc_durations[0]/60, 2)) #mins
     for i in range(num_riders):
         soc_cost += np.sum(payments[i+1])/3600
-
     for i in range(num_riders):
-        rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(soc_durations[i+1]/60,2)), payment=str(round(uberx[i+1]/num_riders,2))) #3600 to convert to per hour
+        rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(soc_durations[i+1]/60,2)), payment=str(round(3* uberx[i+1]/(num_riders+2),2))) #converges to 0
         soc_riders.append(rider)
 
+    # calculate costs for second route
     opt_durations = indivCostMat(onesList, optPath, durMatrix)
     opt_riders = []
     opt_uber_cost = str(round(timeValuation[0] * opt_durations[0] /3600, 2))
@@ -100,11 +105,20 @@ def harm():
         rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(opt_durations[i+1]/60,2)), payment=str(round(np.sum(payments[i+1])/3600,2))) #3600 to convert to per hour
         opt_riders.append(rider)
 
+    # calculate surplus
+    surplus_table = []
+    uberDriver = {'name': 'Driver', 'utility': str(round(payments[0][0],2))}
+    surplus_table.append(uberDriver)
+    for i in range(1, num_riders):
+        rider = dict(name=("Rider " + chr(64+i)), utility=str(round(payments[0][i],2)))
+        surplus_table.append(rider)
+
     # Populate the table
     rider_table = RiderTable(opt_riders)
     rider2_table = RiderTable(soc_riders)
+    surplusTable = SurplusTable(surplus_table)
 
-    return render_template('harm.html', opt_table=rider_table, soc_table=rider2_table, soc_uber_cost = soc_uber_cost, opt_uber_cost=opt_uber_cost, soc_ride_time=soc_ride_time, opt_ride_time=opt_ride_time)
+    return render_template('harm.html', opt_table=rider_table, soc_table=rider2_table, soc_uber_cost = soc_uber_cost, opt_uber_cost=opt_uber_cost, soc_ride_time=soc_ride_time, opt_ride_time=opt_ride_time, surplus_table=surplusTable)
 
 @app.route('/origin')
 def processOrigin():

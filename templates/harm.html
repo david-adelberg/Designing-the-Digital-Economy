@@ -19,8 +19,8 @@
   <!-- Nav tabs -->
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active"><a href="#basics" aria-controls="basics" role="tab" data-toggle="tab">Rider Payments</a></li>
-    <li role="presentation"><a href="#wdev" aria-controls="wdev" role="tab" data-toggle="tab">Time Savings</a></li>
-    <li role="presentation"><a href="#dan" aria-controls="dan" role="tab" data-toggle="tab">FILLER</a></li>
+    <li role="presentation"><a href="#wdev" aria-controls="wdev" role="tab" data-toggle="tab">Surplus Calculations</a></li>
+    <!-- <li role="presentation"><a href="#dan" aria-controls="dan" role="tab" data-toggle="tab">FILLER</a></li> -->
 
   </ul>
 
@@ -29,25 +29,30 @@
 
   <div role="tabpanel" class="tab-pane fade in active" id="basics">
   <br>
-  <b>Time Minimizing Path</b>
+  <b>Driver Time Optimizing Path (current UberPool payment implementation)</b>
   {{soc_table}}
 
   Uber cost : ${{soc_uber_cost}}, Time: {{soc_ride_time}} minutes
   <!-- Uber profit : {{soc_uber_profit}} -->
 
-<br> <br>
+  <br> <br>
   <b>Utility Optimizing Path</b>
   {{opt_table}}
 
   Uber cost : ${{opt_uber_cost}} Time: {{opt_ride_time}} minutes
   <!-- Uber profit : {{opt_uber_profit}} -->
   </div>
-<!--
-  <div role="tabpanel" class="tab-pane fade" id="wdev">web dev</div>
+
+  <div role="tabpanel" class="tab-pane fade" id="wdev"><b> Surplus Table</b>
+  <br>
+
+  Additional surplus in utility optimizing case compared to current implementation.
+<br>
+  {{surplus_table}}</div>
 
 
-  <div role="tabpanel" class="tab-pane fade" id="dan">Data analysis!#Q$@!#</div>
- -->
+  <!-- <div role="tabpanel" class="tab-pane fade" id="dan">Data analysis!#Q$@!#</div> -->
+
 </div>
 
 </div>
