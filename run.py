@@ -121,7 +121,7 @@ def harm():
     uberDriver = {'name': 'Driver', 'cost':str(round(float(opt_uber_cost),2)), 'utility': str(round((100.0*(1-payments[0][0]/shortestPathCost[0])),2))} # we want improvement over shortest, so calculate in costs 1/shortest/optimal = optimal/shortest
     surplus_table.append(uberDriver)
     for i in range(1, num_riders+1):
-        timeCost = float(opt_durations[i]) /60.0 * timeValuation[i] + round(np.sum(payments[i])/3600,2)
+        timeCost = float(opt_durations[i]) /3600.0 * timeValuation[i] + round(np.sum(payments[i])/3600,2)
         rider = dict(name=("Rider " + chr(64+i)), cost=str(round(timeCost,2)), utility=str(round((100.0*(1-payments[0][i]/shortestPathCost[i])),2)))
         surplus_table.append(rider)
 
