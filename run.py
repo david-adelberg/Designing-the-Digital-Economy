@@ -59,7 +59,7 @@ class RiderTable(Table):
 class SurplusTable(Table):
     classes = ['table']
     name = Col('Agent') #rider, uber
-    utility = Col('Cost')
+    utility = Col('Cost under Optimal Path (%)')
     # value = Col('Monetary difference')
 
 @app.route('/stats')
@@ -110,14 +110,18 @@ def harm():
     for i in range(num_riders):
         rider = dict(name=chr(65+i), valuation=str(timeValuation[i+1]),duration=str(round(opt_durations[i+1]/60,2)), payment=str(round(np.sum(payments[i+1])/3600,2))) #3600 to convert to per hour
         opt_riders.append(rider)
+    optUberGross = 0
+    for rider in opt_riders:
+        optUberGross += float(rider['payment'])
+    optUberProfit = optUberGross - float(opt_uber_cost);
 
     # calculate surplus
     shortestPathCost = indivCostMat(timeValuation, socialPath, durMatrix)
     surplus_table = []
-    uberDriver = {'name': 'Driver', 'utility': str(round((payments[0][0]- shortestPathCost[0]),2))}
+    uberDriver = {'name': 'Driver', 'utility': str(round((100.0*payments[0][0]/shortestPathCost[0]),2))} # we want improvement over shortest, so calculate in costs 1/shortest/optimal = optimal/shortest
     surplus_table.append(uberDriver)
     for i in range(1, num_riders):
-        rider = dict(name=("Rider " + chr(64+i)), utility=str(round((payments[0][i] - shortestPathCost[i]),2)))
+        rider = dict(name=("Rider " + chr(64+i)), utility=str(round((100.0*payments[0][i]/shortestPathCost[i]),2)))
         surplus_table.append(rider)
 
     # Populate the table
@@ -127,7 +131,7 @@ def harm():
 
     return render_template('harm.html', opt_table=rider_table, soc_table=rider2_table, soc_uber_cost = soc_uber_cost, \
         opt_uber_cost=opt_uber_cost, soc_ride_time=soc_ride_time, opt_ride_time=opt_ride_time, surplus_table=surplusTable, \
-        soc_uber_profit=socUberProfit, soc_uber_gross=socUberGross)
+        soc_uber_profit=socUberProfit, soc_uber_gross=socUberGross, opt_uber_profit=optUberProfit, opt_uber_gross=optUberGross)
 
 @app.route('/origin')
 def processOrigin():
