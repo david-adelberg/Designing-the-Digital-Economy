@@ -137,7 +137,10 @@ def harm():
     for (key,val) in [('cost', optUberProfit), ('socCost', socUberProfit)]:
         total_row[key] -= val
     
-    total_row['utility'] = -100.0 * ((total_row['cost'] / total_row['socCost']) - 1.0)
+    total_row['utility'] = 100.0 * (1.0 - (total_row['cost'] / total_row['socCost']))
+    if abs(total_row['utility']) < -1e-8:
+        total_row['utility'] = 0.0
+        
     for key in ['cost', 'socCost', 'utility']:
         total_row[key] = str(round(total_row[key], 2))
     
