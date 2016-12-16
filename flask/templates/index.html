@@ -3,7 +3,10 @@
 <html>
   <head>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.3/mapbox.css' rel='stylesheet' />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.3/mapbox.js'></script>
     <style>
         body { margin:0; padding:0; }
@@ -12,14 +15,48 @@
   </head>
   <body>
     <div>
-      <!-- <input type="text" name="username" id="username"/> -->
-      <input type="button" class="origin" value="View Airport"/>
-      <input type="button" class="destination" value="View Destinations"/>
+      <form action="./riders" method="POST">
+          Number of riders: <input type="text" name="numRiders" id="username"/>
+          <input type="submit" name="my-form" value="Send">
+      </form>
+      <input type="button" id ='origin' class="origin" value="View Airport"/>
+      <input type="button" id ='dest' class="destination" value="View Destinations"/>
+      <input type="button" id ='soc' class="social" value="Display Socially Optimal Path"/>
+      <input type="button" id ='opt' class="optimal" value="Display Utility Maximizing Path"/>
+      <input type="button" id ='harm' class="harm" onclick="window.open('{{ url_for('harm')}}')" value="Payments & Statistics"/>
     </div>
     <div id="log">
     </div>
     <div id="map">
     </div>
+<!-- BEGIN -->
+<!-- <div role="tabpanel"> -->
+
+  <!-- Nav tabs -->
+  <!-- <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#basics" aria-controls="basics" role="tab" data-toggle="tab">Basics</a></li>
+    <li role="presentation"><a href="#wdev" aria-controls="wdev" role="tab" data-toggle="tab">Web Dev</a></li>
+    <li role="presentation"><a href="#dan" aria-controls="dan" role="tab" data-toggle="tab">Data Analysis</a></li>
+
+  </ul> -->
+
+  <!-- Tab panes -->
+<!-- <div class="tab-content">
+  <div role="tabpanel" class="tab-pane fade in active" id="basics">
+  {{table}}
+  </div>
+
+  <div role="tabpanel" class="tab-pane fade" id="wdev">web dev</div>
+
+
+  <div role="tabpanel" class="tab-pane fade" id="dan">Data analysis!#Q$@!#</div>
+
+</div>
+
+</div>
+ -->
+
+<!-- END -->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script>
 
@@ -42,6 +79,7 @@
         });
         // alert('Origin: Chicago O\' Hare');
       };
+      document.getElementById('origin').disabled = 'true'
     });
 
    $('.destination').click(function() {
@@ -63,7 +101,60 @@
         });
         // alert('Origin: Chicago O\' Hare');
       };
+
+      document.getElementById('dest').disabled = 'true';
+      document.getElementById('opt').removeAttribute("hidden");
+      document.getElementById('soc').removeAttribute("hidden");
+      document.getElementById('harm').removeAttribute("hidden");
     });
+
+    $('.social').click(function() {
+      var source = new EventSource('/process3');
+      source.onopen = function(){
+        console.log('connection is opened.' + source.readyState);
+      };
+
+      source.onmessage = function(event) {
+        var message = $('#log').html();
+        $('#log').html(message + event.data);
+      };
+
+      source.onerror = function(e) {
+        source.close();
+        $.get('/social', function(response) {
+          var myLayer = L.mapbox.featureLayer().addTo(map);
+          myLayer.setGeoJSON(response.result);
+        });
+        // alert('Origin: Chicago O\' Hare');
+      };
+      document.getElementById('soc').disabled = 'true'
+    });
+
+    $('.optimal').click(function() {
+      var source = new EventSource('/process4');
+      source.onopen = function(){
+        console.log('connection is opened.' + source.readyState);
+      };
+
+      source.onmessage = function(event) {
+        var message = $('#log').html();
+        $('#log').html(message + event.data);
+      };
+
+      source.onerror = function(e) {
+        source.close();
+        $.get('/opt', function(response) {
+          var myLayer = L.mapbox.featureLayer().addTo(map);
+          myLayer.setGeoJSON(response.result);
+        });
+        // alert('Origin: Chicago O\' Hare');
+      };
+      document.getElementById('opt').disabled = 'true'
+    });
+
+    document.getElementById('harm').hidden = 'true'
+    document.getElementById('opt').hidden = 'true'
+    document.getElementById('soc').hidden = 'true'
 
     L.mapbox.accessToken = '{{ACCESS_KEY}}';
     var map = L.mapbox.map('map', 'mapbox.streets', {
