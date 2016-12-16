@@ -65,6 +65,12 @@ class SurplusTable(Table):
     cost = Col('Monetary (including Time) Cost of Optimal Ride($)')
     socCost = Col('Monetary (including Time) Cost of Shortest Ride($)')
 
+    def tr_format(self, item):
+        if item["name"] == "Total":
+            return '<tr class="bold">{}</tr>'
+        else:
+            return '<tr>{}</tr>'
+
 @app.route('/stats')
 def harm():
     payments = session.get('payments', None)
@@ -132,19 +138,15 @@ def harm():
         surplus_table.append(rider)
         for (key, val) in [('cost', timeCost), ('socCost', shortTimeCost)]:
             total_row[key] += val
-    
-    print(optUberProfit, socUberProfit)
+
+    # sum up totals
     for (key,val) in [('cost', optUberProfit), ('socCost', socUberProfit)]:
         total_row[key] -= val
-    
     total_row['utility'] = 100.0 * (1.0 - (total_row['cost'] / total_row['socCost']))
-    if abs(total_row['utility']) < -1e-8:
-        total_row['utility'] = 0.0
-        
     for key in ['cost', 'socCost', 'utility']:
         total_row[key] = str(round(total_row[key], 2))
-    
     surplus_table.append(total_row)
+
     # Populate the table
     rider_table = RiderTable(opt_riders)
     rider2_table = RiderTable(soc_riders)
