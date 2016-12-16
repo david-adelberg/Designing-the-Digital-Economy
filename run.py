@@ -7,6 +7,8 @@ from mapbox import Directions
 import numpy as np
 from flask_bootstrap import Bootstrap
 
+#updated version
+
 # import things
 from flask_table import Table, Col
 
@@ -121,12 +123,25 @@ def harm():
     surplus_table = []
     uberDriver = {'name': 'Driver', 'cost': str(round(float(opt_uber_cost),2)), 'socCost': str(round(float(soc_uber_cost),2)), 'utility': str(round((100.0*(1-payments[0][0]/shortestPathCost[0])),2))} # we want improvement over shortest, so calculate in costs 1/shortest/optimal = optimal/shortest
     surplus_table.append(uberDriver)
+    total_row = {"name": "Total", "cost": 0.0, "socCost": 0.0, "utility": 0.0}
     for i in range(1, num_riders+1):
         timeCost = float(opt_durations[i]) /3600.0 * timeValuation[i] + round(np.sum(payments[i])/3600,2)
         shortTimeCost = float(soc_durations[i]) / 3600.0 * timeValuation[i] + round(3* uberx[i]/(num_riders+2),2)
-        rider = dict(name=("Rider " + chr(64+i)), cost=str(round(timeCost,2)), socCost=str(round(shortTimeCost,2)), utility=str(round((100.0*(1-timeCost/shortTimeCost)),2)))
+        util = 100.0*(1-timeCost/shortTimeCost)
+        rider = dict(name=("Rider " + chr(64+i)), cost=str(round(timeCost,2)), socCost=str(round(shortTimeCost,2)), utility=str(round(util,2)))
         surplus_table.append(rider)
-
+        for (key, val) in [('cost', timeCost), ('socCost', shortTimeCost)]:
+            total_row[key] += val
+    
+    print(optUberProfit, socUberProfit)
+    for (key,val) in [('cost', optUberProfit), ('socCost', socUberProfit)]:
+        total_row[key] -= val
+    
+    total_row['utility'] = -100.0 * ((total_row['cost'] / total_row['socCost']) - 1.0)
+    for key in ['cost', 'socCost', 'utility']:
+        total_row[key] = str(round(total_row[key], 2))
+    
+    surplus_table.append(total_row)
     # Populate the table
     rider_table = RiderTable(opt_riders)
     rider2_table = RiderTable(soc_riders)
